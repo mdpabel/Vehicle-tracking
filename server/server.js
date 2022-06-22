@@ -1,27 +1,37 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-// const socketIO = require('socket.io');
 const http = require('http');
-require('dotenv').config();
-
-const busLocation = require('./src/routers/busLocation');
-const { port } = require('./config');
 
 const app = express();
-const server = http.Server(app);
-// const io = socketIO(server);
+const server = http.createServer(app);
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+const io = require('socket.io')(server, {
+  cors: {
+    origin: '*',
+  },
+});
 
-// app.use(function (req, res, next) {
-//   res.io = io;
-//   next();
-// });
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+  );
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE');
 
-app.use('/api/v1/', busLocation);
+  next();
+});
 
-server.listen(port, () => console.log(`Server is running on PORT ${port}`));
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
 
-// db
-require('./src/db/mongodb');
+io.on('connection', (socket) => {
+  console.log('connected');
+  socket.on('gpsdata', (data) => {
+    console.log(data);
+  });
+});
+
+server.listen(3000, () => {
+  console.log('listening on *:3000');
+});
