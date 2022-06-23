@@ -10,14 +10,14 @@ const locationScheam = new Schema({
   date: {
     type: String,
   },
-  time: {
+  lattitude: {
     type: String,
   },
-  lat: {
+  longitude: {
     type: String,
     required: true,
   },
-  lon: {
+  speed: {
     type: String,
     required: true,
   },

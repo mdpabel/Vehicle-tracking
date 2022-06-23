@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Popup } from 'react-leaflet';
 import ReactLeafletDriftMarker from 'react-leaflet-drift-marker';
+import { io } from 'socket.io-client';
 import L from 'leaflet';
 import tileLayer from './utils/tileLayer';
 import 'leaflet/dist/leaflet.css';
@@ -20,7 +21,7 @@ const icon = L.icon({
   shadowAnchor: [22, 94],
 });
 
-const App = () => {
+const Map = () => {
   const [location, setLocation] = useState({
     lat: 23.4530972,
     lon: 91.1658009,
@@ -57,5 +58,25 @@ const App = () => {
     </MapContainer>
   );
 };
+
+function App() {
+  const [gpsdata, setGpsdata] = useState([]);
+  const socket = io('http://localhost:3000', { reconnectionAttempts: 5 });
+
+  useEffect(() => {
+    socket.emit('reply');
+    socket.on('gpsdataforclients', (data) => {
+      setGpsdata(JSON.parse(data));
+    });
+  }, [socket]);
+
+  return (
+    <div>
+      <h3> lattitude : {gpsdata.lattitude}</h3>
+      <h3> longitude : {gpsdata.longitude}</h3>
+      <h3> busId : {gpsdata.busId}</h3>
+    </div>
+  );
+}
 
 export default App;
